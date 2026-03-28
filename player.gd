@@ -37,16 +37,21 @@ func _physics_process(delta: float) -> void:
 		sprite_2d.flip_h = false
 		
 	if direction:
+		highlight_mode = "none"
 		velocity.x = direction * current_speed
 	else:
 		velocity.x = move_toward(velocity.x, 0, current_speed)
 		
 	if Input.is_action_just_pressed("down_move"):
-		highlight_mode = "build"
-		place_block()
+		if highlight_mode == "build":
+			place_block()
+		else:
+			highlight_mode = "build"
 	elif Input.is_action_just_pressed("mine_block"):
-		highlight_mode = "mine"
-		mine_block()
+		if highlight_mode == "mine":
+			mine_block()
+		else:
+			highlight_mode = "mine"
 		
 	update_highlight()
 	
@@ -113,10 +118,16 @@ func update_highlight() -> void:
 	
 	if highlight_mode == "build":
 		target_grid_pos = get_build_target()
-		highlight.modulate = Color(0.502, 1.0, 0.502, 1.0)
+		highlight.modulate = Color(0.5, 1, 0.5, 0.7)
 	elif highlight_mode == "mine":
 		target_grid_pos = get_mine_target()
-		highlight.modulate = Color(1, 0.5, 0.5, 0.7)
+		var source = tilemaplayer.get_cell_source_id(target_grid_pos)
+		var atlas = tilemaplayer.get_cell_atlas_coords(target_grid_pos)
+		if source == 0 and atlas == block_atlas_coord:
+			highlight.visible = true
+			highlight.modulate = Color(1, 0.5, 0.5, 0.7)
+		else:
+			highlight.visible = false
 	
 	var local_pos = tilemaplayer.map_to_local(target_grid_pos)
 	highlight.global_position = tilemaplayer.to_global(local_pos)
