@@ -117,18 +117,22 @@ func update_highlight() -> void:
 	var target_grid_pos: Vector2i
 	
 	if highlight_mode == "build":
-		if charges > 3:
-			target_grid_pos = get_build_target()
-			highlight.modulate = Color(0.502, 1.0, 0.502, 1.0)
+		target_grid_pos = get_build_target()
+		var source = tilemaplayer.get_cell_source_id(target_grid_pos)
+		
+		if source == -1 and charges > 3:
+			highlight.visible = true
+			highlight.modulate = Color(0.0, 1.0, 0.0, 1.0)
 		else:
 			highlight.visible = false
+
 	elif highlight_mode == "mine":
 		target_grid_pos = get_mine_target()
 		var source = tilemaplayer.get_cell_source_id(target_grid_pos)
 		var atlas = tilemaplayer.get_cell_atlas_coords(target_grid_pos)
 		if source == 0 and atlas == block_atlas_coord:
 			highlight.visible = true
-			highlight.modulate = Color(1, 0.5, 0.5, 0.7)
+			highlight.modulate = Color(1.0, 0.0, 0.0, 1.0)
 		else:
 			highlight.visible = false
 	
