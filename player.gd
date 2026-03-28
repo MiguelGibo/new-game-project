@@ -47,16 +47,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	
 func place_block() -> void:
-	var player_local_pos = tilemaplayer.to_local(global_position)
-	var player_grid_pos = tilemaplayer.local_to_map(player_local_pos)
-	
-	var tile_below_player = player_grid_pos + Vector2i(0, 1)
-	var target_grid_pos: Vector2i
-	
-	if tilemaplayer.get_cell_source_id(tile_below_player) == -1:
-		target_grid_pos = tile_below_player
-	else:
-		target_grid_pos = player_grid_pos + Vector2i(dir_facing, 1)
+	var target_grid_pos: Vector2i =get_build_target()
 
 	if tilemaplayer.get_cell_source_id(target_grid_pos) == -1 and charges > 3:
 		tilemaplayer.set_cell(target_grid_pos, 0, block_atlas_coord)
@@ -64,26 +55,7 @@ func place_block() -> void:
 		update_size()
 
 func mine_block() -> void:
-	var player_local_pos = tilemaplayer.to_local(global_position)
-	var player_grid_pos = tilemaplayer.local_to_map(player_local_pos)
-	
-	var check_positions = [
-		player_grid_pos + Vector2i(dir_facing, 0),   # Front
-		player_grid_pos + Vector2i(dir_facing, 1),   # Diagonal Bottom
-		player_grid_pos + Vector2i(dir_facing, -1),  # Diagonal Top
-		player_grid_pos + Vector2i(0, 1),             # Below
-		player_grid_pos + Vector2i(0, -1)             # Above
-		]
-	
-	var target_grid_pos: Vector2i
-	for pos in check_positions:
-		var source = tilemaplayer.get_cell_source_id(pos)
-		var atlas = tilemaplayer.get_cell_atlas_coords(pos)
-		
-		if source == 0 and atlas == block_atlas_coord:
-			target_grid_pos = pos
-			break
-			
+	var target_grid_pos: Vector2i = get_mine_target()
 	var target_source = tilemaplayer.get_cell_source_id(target_grid_pos)
 	var target_atlas = tilemaplayer.get_cell_atlas_coords(target_grid_pos)
 	
@@ -96,3 +68,31 @@ func update_size() -> void:
 	var effective_charges = max(1, charges)
 	var scale_factor = float(effective_charges) / 6.0
 	scale = Vector2(scale_factor, scale_factor)
+	
+func get_build_target() -> Vector2i:
+	var player_local_pos = tilemaplayer.to_local(global_position)
+	var player_grid_pos = tilemaplayer.local_to_map(player_local_pos)
+	var tile_below_player = player_grid_pos + Vector2i(0, 1)
+	
+	if tilemaplayer.get_cell_source_id(tile_below_player) == -1:
+		return tile_below_player
+	else:
+		return player_grid_pos + Vector2i(dir_facing, 1)
+		
+func get_mine_target() -> Vector2i:
+	var player_local_pos = tilemaplayer.to_local(global_position)
+	var player_grid_pos = tilemaplayer.local_to_map(player_local_pos)
+	
+	var check_positions = [
+		player_grid_pos + Vector2i(dir_facing, 0),   # Front
+		player_grid_pos + Vector2i(dir_facing, -1),  # Diagonal Top
+		player_grid_pos + Vector2i(dir_facing, 1),   # Diagonal Bottom
+		player_grid_pos + Vector2i(0, 1),            # Below
+		player_grid_pos + Vector2i(0, -1)            # Above
+	]
+	
+	for pos in check_positions:
+		if tilemaplayer.get_cell_source_id(pos) == 0 and tilemaplayer.get_cell_atlas_coords(pos) == block_atlas_coord:
+			return pos
+
+	return player_grid_pos + Vector2i(dir_facing, 0)
