@@ -10,6 +10,8 @@ const JUMP_VELOCITY = -175
 @export var dir_facing: int = 1
 @onready var sprite_2d: Sprite2D = $Sprite2D
 var charges: int = 6
+var highlight_mode: String = "none"
+@onready var highlight: Sprite2D = $Highlight
 
 func _physics_process(delta: float) -> void:
 	var current_speed = SPEED
@@ -40,10 +42,14 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0, current_speed)
 		
 	if Input.is_action_just_pressed("down_move"):
+		highlight_mode = "build"
 		place_block()
 	elif Input.is_action_just_pressed("mine_block"):
+		highlight_mode = "mine"
 		mine_block()
 		
+	update_highlight()
+	
 	move_and_slide()
 	
 func place_block() -> void:
@@ -96,3 +102,22 @@ func get_mine_target() -> Vector2i:
 			return pos
 
 	return player_grid_pos + Vector2i(dir_facing, 0)
+
+func update_highlight() -> void:
+	if highlight_mode == "none":
+		highlight.visible = false
+		return
+	
+	highlight.visible = true
+	var target_grid_pos: Vector2i
+	
+	if highlight_mode == "build":
+		target_grid_pos = get_build_target()
+		highlight.modulate = Color(0.502, 1.0, 0.502, 1.0)
+	elif highlight_mode == "mine":
+		target_grid_pos = get_mine_target()
+		highlight.modulate = Color(1, 0.5, 0.5, 0.7)
+	
+	var local_pos = tilemaplayer.map_to_local(target_grid_pos)
+	highlight.global_position = tilemaplayer.to_global(local_pos)
+	

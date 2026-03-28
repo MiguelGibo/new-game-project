@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://pdn3y8iapeht" path="res://loveslime_sprites-export.png" id="1_4flbx"]
 [ext_resource type="Script" uid="uid://80kl10p8d3vr" path="res://player.gd" id="1_onrkg"]
+[ext_resource type="Texture2D" uid="uid://cxvncvr0niopk" path="res://loveslime_sprites.png" id="3_i3pqv"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_onrkg"]
 radius = 6.0
@@ -18,3 +19,11 @@ texture = ExtResource("1_4flbx")
 hframes = 4
 vframes = 4
 frame = 1
+
+[node name="Highlight" type="Sprite2D" parent="." unique_id=238985431]
+visible = false
+top_level = true
+texture = ExtResource("3_i3pqv")
+hframes = 4
+vframes = 4
+frame = 3
