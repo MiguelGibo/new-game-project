@@ -37,7 +37,7 @@ func _physics_process(delta: float) -> void:
 		sprite_2d.flip_h = false
 		
 	if direction:
-		highlight_mode = "none"
+		#highlight_mode = "none"
 		velocity.x = direction * current_speed
 	else:
 		velocity.x = move_toward(velocity.x, 0, current_speed)
@@ -117,8 +117,11 @@ func update_highlight() -> void:
 	var target_grid_pos: Vector2i
 	
 	if highlight_mode == "build":
-		target_grid_pos = get_build_target()
-		highlight.modulate = Color(0.5, 1, 0.5, 0.7)
+		if charges > 3:
+			target_grid_pos = get_build_target()
+			highlight.modulate = Color(0.502, 1.0, 0.502, 1.0)
+		else:
+			highlight.visible = false
 	elif highlight_mode == "mine":
 		target_grid_pos = get_mine_target()
 		var source = tilemaplayer.get_cell_source_id(target_grid_pos)
