@@ -6,12 +6,13 @@ const AIR_CONTROL = 0.80
 const JUMP_VELOCITY = -175
 
 @export var tilemaplayer: TileMapLayer
-@export var block_atlas_coord: Vector2i = Vector2i(2,0)
+@export var block_atlas_coord: Vector2i = Vector2i(2,1)
 @export var dir_facing: int = 1
 @onready var sprite_2d: Sprite2D = $Sprite2D
 var charges: int = 6
 var highlight_mode: String = "none"
 @onready var highlight: Sprite2D = $Highlight
+var highlight_frame = 3
 
 func _physics_process(delta: float) -> void:
 	var current_speed = SPEED
@@ -122,7 +123,8 @@ func update_highlight() -> void:
 		
 		if source == -1 and charges > 3:
 			highlight.visible = true
-			highlight.modulate = Color(0.0, 1.0, 0.0, 1.0)
+			highlight_frame = 7
+			highlight.frame = highlight_frame
 		else:
 			highlight.visible = false
 
@@ -132,7 +134,8 @@ func update_highlight() -> void:
 		var atlas = tilemaplayer.get_cell_atlas_coords(target_grid_pos)
 		if source == 0 and atlas == block_atlas_coord:
 			highlight.visible = true
-			highlight.modulate = Color(1.0, 0.0, 0.0, 1.0)
+			highlight_frame = 3
+			highlight.frame = highlight_frame
 		else:
 			highlight.visible = false
 	

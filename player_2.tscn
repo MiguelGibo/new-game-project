@@ -17,7 +17,7 @@ position = Vector2(-1, -2)
 texture = ExtResource("3_ryqyf")
 hframes = 4
 vframes = 4
-frame = 1
+frame = 5
 
 [node name="Highlight" type="Sprite2D" parent="." unique_id=238985431]
 visible = false
