@@ -6,10 +6,13 @@ const AIR_CONTROL = 0.80
 const JUMP_VELOCITY = -175
 
 @export var tilemaplayer: TileMapLayer
-@export var block_atlas_coord: Vector2i = Vector2i(2,1)
+@export var block_atlas_coord_green: Vector2i = Vector2i(2,0)
+@export var block_atlas_coord_blue: Vector2i = Vector2i(2,1)
 @export var dir_facing: int = 1
 @onready var sprite_2d: Sprite2D = $Sprite2D
-var charges: int = 6
+var green_charges: int = 0
+var blue_charges: int = 3
+var placed_blocks: int = 0
 var highlight_mode: String = "none"
 @onready var highlight: Sprite2D = $Highlight
 var highlight_frame = 3
@@ -55,15 +58,25 @@ func _physics_process(delta: float) -> void:
 			highlight_mode = "mine"
 		
 	update_highlight()
+	update_color()
 	
 	move_and_slide()
 	
 func place_block() -> void:
 	var target_grid_pos: Vector2i =get_build_target()
+	
+	if placed_blocks > 3:
+		return
 
-	if tilemaplayer.get_cell_source_id(target_grid_pos) == -1 and charges > 3:
-		tilemaplayer.set_cell(target_grid_pos, 0, block_atlas_coord)
-		charges -= 1
+	if tilemaplayer.get_cell_source_id(target_grid_pos) == -1 and blue_charges > 0:
+		tilemaplayer.set_cell(target_grid_pos, 0, block_atlas_coord_blue)
+		blue_charges -= 1
+		placed_blocks += 1
+		update_size()
+	elif tilemaplayer.get_cell_source_id(target_grid_pos) == -1 and green_charges > 0:
+		tilemaplayer.set_cell(target_grid_pos, 0, block_atlas_coord_green)
+		green_charges -= 1
+		placed_blocks += 1
 		update_size()
 
 func mine_block() -> void:
@@ -71,14 +84,23 @@ func mine_block() -> void:
 	var target_source = tilemaplayer.get_cell_source_id(target_grid_pos)
 	var target_atlas = tilemaplayer.get_cell_atlas_coords(target_grid_pos)
 	
-	if target_source == 0 and target_atlas == block_atlas_coord and charges < 6:
+	if placed_blocks == 0:
+		return
+	
+	if target_source == 0 and target_atlas == block_atlas_coord_blue and blue_charges < 4:
 		tilemaplayer.set_cell(target_grid_pos, -1)
-		charges += 1
+		blue_charges += 1
+		placed_blocks -= 1
+		update_size()
+	elif target_source == 0 and target_atlas == block_atlas_coord_green and green_charges < 4:
+		tilemaplayer.set_cell(target_grid_pos, -1)
+		green_charges += 1
+		placed_blocks -= 1
 		update_size()
 
 func update_size() -> void:
-	var effective_charges = max(1, charges)
-	var scale_factor = float(effective_charges) / 6.0
+	#var effective_charges = max(1, placed_blocks)
+	var scale_factor = float(3 - placed_blocks + 1) / 4.0
 	scale = Vector2(scale_factor, scale_factor)
 	
 func get_build_target() -> Vector2i:
@@ -104,7 +126,7 @@ func get_mine_target() -> Vector2i:
 	]
 	
 	for pos in check_positions:
-		if tilemaplayer.get_cell_source_id(pos) == 0 and tilemaplayer.get_cell_atlas_coords(pos) == block_atlas_coord:
+		if tilemaplayer.get_cell_source_id(pos) == 0 and (tilemaplayer.get_cell_atlas_coords(pos) == block_atlas_coord_green or tilemaplayer.get_cell_atlas_coords(pos) == block_atlas_coord_blue):
 			return pos
 
 	return player_grid_pos + Vector2i(dir_facing, 0)
@@ -121,7 +143,7 @@ func update_highlight() -> void:
 		target_grid_pos = get_build_target()
 		var source = tilemaplayer.get_cell_source_id(target_grid_pos)
 		
-		if source == -1 and charges > 3:
+		if source == -1 and placed_blocks < 3:
 			highlight.visible = true
 			highlight_frame = 7
 			highlight.frame = highlight_frame
@@ -132,7 +154,7 @@ func update_highlight() -> void:
 		target_grid_pos = get_mine_target()
 		var source = tilemaplayer.get_cell_source_id(target_grid_pos)
 		var atlas = tilemaplayer.get_cell_atlas_coords(target_grid_pos)
-		if source == 0 and atlas == block_atlas_coord:
+		if source == 0 and (atlas == block_atlas_coord_green or atlas == block_atlas_coord_blue):
 			highlight.visible = true
 			highlight_frame = 3
 			highlight.frame = highlight_frame
@@ -141,4 +163,9 @@ func update_highlight() -> void:
 	
 	var local_pos = tilemaplayer.map_to_local(target_grid_pos)
 	highlight.global_position = tilemaplayer.to_global(local_pos)
+	
+func update_color() -> void:
+	var green_intensity = 0.2 * green_charges
+	green_intensity = clamp(green_intensity, 0.0, 1.0)
+	sprite_2d.modulate = Color.WHITE.lerp(Color.GREEN, green_intensity)
 	
