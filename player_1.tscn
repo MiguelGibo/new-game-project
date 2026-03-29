@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://ckudr8chj1kgo"]
+
+[ext_resource type="Script" uid="uid://80kl10p8d3vr" path="res://player_1.gd" id="1_qh3su"]
+[ext_resource type="Texture2D" uid="uid://cxvncvr0niopk" path="res://loveslime_sprites.png" id="3_6736r"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_onrkg"]
+radius = 6.0
+
+[node name="Player" type="CharacterBody2D" unique_id=2024297438]
+script = ExtResource("1_qh3su")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681202857]
+shape = SubResource("CircleShape2D_onrkg")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1988429914]
+position = Vector2(-1, -2)
+texture = ExtResource("3_6736r")
+hframes = 4
+vframes = 4
+frame = 1
+
+[node name="Highlight" type="Sprite2D" parent="." unique_id=238985431]
+visible = false
+top_level = true
+texture = ExtResource("3_6736r")
+hframes = 4
+vframes = 4
+frame = 3
