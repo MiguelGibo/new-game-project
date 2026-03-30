@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://ckudr8chj1kgo" path="res://player_1.tscn" id="3_0s5r2"]
 [ext_resource type="PackedScene" uid="uid://bo4ecolaorstk" path="res://player_2.tscn" id="4_7j8ne"]
 [ext_resource type="Script" uid="uid://dexoia7a51tf6" path="res://scripts/level_transition.gd" id="5_b4j7a"]
+[ext_resource type="FontFile" path="res://fonts/poco/Poco.tres" id="6_p6vls"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hn12h"]
 texture = ExtResource("1_1y8me")
@@ -47,7 +48,7 @@ tile_set = SubResource("TileSet_ihfcg")
 script = ExtResource("2_n7ypv")
 
 [node name="Player1" parent="." unique_id=2024297438 node_paths=PackedStringArray("tilemaplayer") instance=ExtResource("3_0s5r2")]
-position = Vector2(202, 137)
+position = Vector2(263, 54)
 collision_layer = 3
 tilemaplayer = NodePath("../TileMapLayer")
 
@@ -74,3 +75,39 @@ position = Vector2(1, 0)
 position = Vector2(104, 72)
 shape = SubResource("RectangleShape2D_ah8om")
 one_way_collision = true
+
+[node name="Label" type="Label" parent="." unique_id=338987829]
+offset_left = 44.0
+offset_top = 86.0
+offset_right = 316.0
+offset_bottom = 152.0
+theme_override_colors/font_color = Color(0.26666668, 1, 0.8392157, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.39607844)
+theme_override_fonts/font = ExtResource("6_p6vls")
+theme_override_font_sizes/font_size = 11
+text = "Slimy can also absorb blocks by pressing [Left Shift].
+These blocks can be pushed around."
+autowrap_mode = 2
+
+[node name="Label2" type="Label" parent="." unique_id=1034371058]
+offset_left = 35.0
+offset_top = 11.0
+offset_right = 297.0
+offset_bottom = 77.0
+theme_override_colors/font_color = Color(0.26666668, 1, 0.20392157, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.39607844)
+theme_override_fonts/font = ExtResource("6_p6vls")
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 2
+
+[node name="Label3" type="Label" parent="." unique_id=390756680]
+offset_left = 266.0
+offset_top = 148.0
+offset_right = 528.0
+offset_bottom = 214.0
+theme_override_colors/font_color = Color(0.96677226, 0.9676662, 0.97848564, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.61960787)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("6_p6vls")
+theme_override_font_sizes/font_size = 16
+text = "Level: 3"

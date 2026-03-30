@@ -98,5 +98,17 @@ theme_override_colors/font_color = Color(0.26666668, 1, 0.20392157, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.39607844)
 theme_override_fonts/font = ExtResource("6_wo48x")
 theme_override_font_sizes/font_size = 11
-text = "You can absorb blocks by pressing [f],
+text = "You can absorb blocks by pressing [F],
 gaining Slimy's abilities."
+
+[node name="Label3" type="Label" parent="." unique_id=310155883]
+offset_left = 267.0
+offset_top = 148.0
+offset_right = 529.0
+offset_bottom = 214.0
+theme_override_colors/font_color = Color(0.96677226, 0.9676662, 0.97848564, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.61960787)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("6_wo48x")
+theme_override_font_sizes/font_size = 16
+text = "Level: 2"
