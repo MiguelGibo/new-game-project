@@ -67,11 +67,14 @@ func drop_block(start_grid: Vector2i, end_grid: Vector2i) -> void:
 	var on_drop_finished = func():
 		reserved_cells.erase(end_grid) 
 	
-		if get_cell_source_id(end_grid) == -1 and not is_tile_occupied(end_grid):
-			set_cell(end_grid, 0, block_atlas_coord_blue)
-			
-		drop_sprite.queue_free() 
+		var final_landing_pos = end_grid
 		
+		while get_cell_source_id(final_landing_pos) != -1 or is_tile_occupied(final_landing_pos):
+			final_landing_pos += Vector2i(0, -1)
+			
+		set_cell(final_landing_pos, 0, block_atlas_coord_blue)
+		drop_sprite.queue_free() 
+	
 	tween.finished.connect(on_drop_finished)
 	
 func is_tile_occupied(grid_pos: Vector2i) -> bool:

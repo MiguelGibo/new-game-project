@@ -51,7 +51,7 @@ collision_layer = 3
 tilemaplayer = NodePath("../TileMapLayer")
 
 [node name="Player2" parent="." unique_id=52428779 node_paths=PackedStringArray("tilemaplayer") instance=ExtResource("3_hn12h")]
-position = Vector2(57, 56)
+position = Vector2(58, 54)
 collision_layer = 3
 tilemaplayer = NodePath("../TileMapLayer")
 
