@@ -1,6 +1,5 @@
 extends CharacterBody2D
 
-
 const SPEED = 75
 const AIR_CONTROL = 1
 const JUMP_VELOCITY = -175
@@ -21,9 +20,57 @@ var is_pushing: bool = false
 @export var grate_atlas_coord: Vector2i = Vector2i(1,2)
 @onready var hearts: Sprite2D = $Hearts
 
-# Block mode vars
+# Block mode vars (toggle mode)
 var block_mode: bool = false
 var block_cursor: Vector2i = Vector2i(1, 0)  # offset from player, starts to the right
+var _cursor_move_timer: float = 0.0
+const CURSOR_MOVE_DELAY: float = 0.2
+
+# Controller support
+@export var device_id: int = 0  # Set in inspector (0 for player 1)
+var _just_pressed: Dictionary = {}
+
+# Action button mapping for controller
+var ACTION_BUTTONS: Dictionary = {
+	"up_move":    0,   # Cross / A
+	"down_move":  12,  # D-pad Down
+	"left_move":  13,  # D-pad Left
+	"right_move": 14,  # D-pad Right
+	"mine_block": 2,   # Square / X
+	"block_mode": 10,  # R2 / Right Trigger (for toggle)
+}
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventJoypadButton and event.device == device_id and event.pressed:
+		_just_pressed[event.button_index] = true
+
+func _ajp(action: String) -> bool:
+	# Check keyboard (player 1 uses actions without suffix)
+	if Input.is_action_just_pressed(action):
+		return true
+	
+	# Check controller
+	if action in ACTION_BUTTONS:
+		if _just_pressed.get(ACTION_BUTTONS[action], false):
+			_just_pressed.erase(ACTION_BUTTONS[action])
+			return true
+	return false
+
+func _get_move_axis() -> float:
+	# Keyboard first (player 1 uses actions without suffix)
+	var kb := Input.get_axis("left_move", "right_move")
+	if abs(kb) > 0.0:
+		return kb
+	
+	# Controller
+	var axis := Input.get_joy_axis(device_id, JOY_AXIS_LEFT_X)
+	if abs(axis) > 0.2:
+		return axis
+	if Input.is_joy_button_pressed(device_id, JOY_BUTTON_DPAD_LEFT):
+		return -1.0
+	if Input.is_joy_button_pressed(device_id, JOY_BUTTON_DPAD_RIGHT):
+		return 1.0
+	return 0.0
 
 func _physics_process(delta: float) -> void:
 	var current_speed = SPEED
@@ -32,14 +79,14 @@ func _physics_process(delta: float) -> void:
 		velocity += get_gravity() * delta
 		current_speed = SPEED * AIR_CONTROL
 
-		# Toggle block mode with G
-	if Input.is_action_just_pressed("block_mode"):
+	# Toggle block mode with G or R2 button (press to toggle, not hold)
+	if _ajp("block_mode"):
 		block_mode = !block_mode
 		block_cursor = Vector2i(1, 0)
 		return  # ← stops processing this frame immediately after toggling
 
 	if block_mode:
-		_handle_block_mode()
+		_handle_block_mode(delta)
 	else:
 		_handle_normal_mode(delta, current_speed)
 		
@@ -55,14 +102,13 @@ func _physics_process(delta: float) -> void:
 		try_push_block()
 	# Check if touching other player.
 	check_player_collision()
-	
 
 func _handle_normal_mode(delta: float, current_speed: float) -> void:
 	# Jump
-	if Input.is_action_just_pressed("up_move") and is_on_floor():
+	if _ajp("up_move") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
-	var direction := Input.get_axis("left_move", "right_move")
+	var direction := _get_move_axis()
 
 	if direction != 0:
 		dir_facing = sign(direction)
@@ -77,12 +123,12 @@ func _handle_normal_mode(delta: float, current_speed: float) -> void:
 	else:
 		velocity.x = move_toward(velocity.x, 0, current_speed)
 
-	if Input.is_action_just_pressed("down_move"):
+	if _ajp("down_move"):
 		if highlight_mode == "build":
 			place_block()
 		else:
 			highlight_mode = "build"
-	elif Input.is_action_just_pressed("mine_block"):
+	elif _ajp("mine_block"):
 		if highlight_mode == "mine":
 			mine_block()
 		else:
@@ -91,31 +137,86 @@ func _handle_normal_mode(delta: float, current_speed: float) -> void:
 	if direction != 0 and is_on_wall() and is_on_floor():
 		try_push_block()
 		
-func _handle_block_mode() -> void:
-	velocity.x = move_toward(velocity.x, 0, SPEED)
+func _handle_block_mode(delta: float) -> void:
+	# Allow movement in block mode (use left stick for movement)
+	var direction := _get_move_axis()
+	if direction != 0:
+		dir_facing = sign(direction)
+		velocity.x = direction * SPEED
+	else:
+		velocity.x = move_toward(velocity.x, 0, SPEED)
+	
+	# Allow jumping in block mode
+	if _ajp("up_move") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
 
-	# Move cursor with WASD
-	if Input.is_action_just_pressed("left_move"):
-		block_cursor.x = max(-1, block_cursor.x - 1)
-	elif Input.is_action_just_pressed("right_move"):
-		block_cursor.x = min(1, block_cursor.x + 1)
-	elif Input.is_action_just_pressed("up_move"):
-		block_cursor.y = max(-1, block_cursor.y - 1)
-	elif Input.is_action_just_pressed("down_move"):
-		block_cursor.y = min(1, block_cursor.y + 1)
+	# Move cursor with right stick / D-pad / WASD
+	var ax := _get_cursor_axis_x()
+	var ay := _get_cursor_axis_y()
+
+	var cx := 0
+	var cy := 0
+
+	if abs(ax) > 0.5:
+		cx = int(sign(ax))
+
+	if abs(ay) > 0.5:
+		cy = int(sign(ay))
+
+	# Also check keyboard for cursor movement (WASD in block mode)
+	if _ajp("left_move"):
+		cx = -1
+	elif _ajp("right_move"):
+		cx = 1
+		
+	if _ajp("up_move"):
+		cy = -1
+	elif _ajp("down_move"):
+		cy = 1
+
+	if cx != 0 or cy != 0:
+		_cursor_move_timer -= delta
+		if _cursor_move_timer <= 0.0:
+			block_cursor.x = clamp(block_cursor.x + cx, -1, 1)
+			block_cursor.y = clamp(block_cursor.y + cy, -1, 1)
+			_cursor_move_timer = CURSOR_MOVE_DELAY
+	else:
+		_cursor_move_timer = 0.0
 
 	# Don't allow cursor on player's own tile
 	if block_cursor == Vector2i(0, 0):
 		block_cursor = Vector2i(1, 0)
 
-	# F = smart toggle: absorb if block exists, place if empty
-	if Input.is_action_just_pressed("mine_block"):
+	# Square / F: absorb if block exists, place if empty
+	if _ajp("mine_block"):
 		var target = get_cursor_grid_pos()
 		var source = tilemaplayer.get_cell_source_id(target)
 		if source != -1:
 			absorb_block_at_cursor()
 		else:
 			place_block_at_cursor()
+
+func _get_cursor_axis_x() -> float:
+	# Right stick for cursor movement
+	var axis := Input.get_joy_axis(device_id, JOY_AXIS_RIGHT_X)
+	if abs(axis) > 0.2:
+		return axis
+	# Also check D-pad for cursor
+	if Input.is_joy_button_pressed(device_id, JOY_BUTTON_DPAD_LEFT):
+		return -1.0
+	if Input.is_joy_button_pressed(device_id, JOY_BUTTON_DPAD_RIGHT):
+		return 1.0
+	return 0.0
+
+func _get_cursor_axis_y() -> float:
+	var axis := Input.get_joy_axis(device_id, JOY_AXIS_RIGHT_Y)
+	if abs(axis) > 0.2:
+		return axis
+	if Input.is_joy_button_pressed(device_id, JOY_BUTTON_DPAD_UP):
+		return -1.0
+	if Input.is_joy_button_pressed(device_id, JOY_BUTTON_DPAD_DOWN):
+		return 1.0
+	return 0.0
 
 func get_player_grid_pos() -> Vector2i:
 	var player_local_pos = tilemaplayer.to_local(global_position)
@@ -196,7 +297,7 @@ func check_player_collision() -> void:
 		GameManager.unregister_player_touch(self)
 			
 func place_block() -> void:
-	var target_grid_pos: Vector2i =get_build_target()
+	var target_grid_pos: Vector2i = get_build_target()
 	
 	if placed_blocks > 3:
 		return
@@ -280,7 +381,6 @@ func get_mine_target() -> Vector2i:
 
 	return player_grid_pos + Vector2i(dir_facing, 0)
 
-
 func update_highlight() -> void:
 	if block_mode:
 		# Show cursor at the block mode target position
@@ -328,12 +428,11 @@ func update_highlight() -> void:
 
 	var local_pos = tilemaplayer.map_to_local(target_grid_pos)
 	highlight.global_position = tilemaplayer.to_global(local_pos)
+
 func update_color() -> void:
 	var blue_intensity = 0.3 * blue_charges
 	blue_intensity = clamp(blue_intensity, 0.0, 1.0)
 	sprite_2d.modulate = Color.WHITE.lerp(Color.CYAN, blue_intensity)
-	
-
 
 func try_push_block() -> void:
 	var player_local_pos = tilemaplayer.to_local(global_position)
