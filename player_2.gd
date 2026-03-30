@@ -68,6 +68,18 @@ func _physics_process(delta: float) -> void:
 	if direction != 0 and is_on_wall() and is_on_floor():
 		try_push_block()
 	
+	# Check if touching other player.
+	check_player_collision()
+
+func check_player_collision() -> void:
+	for i in get_slide_collision_count():
+		var collision = get_slide_collision(i)
+		var collider = collision.get_collider()
+		if collider.is_in_group("player"):
+			GameManager.register_player_touch(self)
+		else:
+			GameManager.unregister_player_touch(self)
+
 func place_block() -> void:
 	var target_grid_pos: Vector2i =get_build_target()
 	

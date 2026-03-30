@@ -2,7 +2,7 @@ extends CharacterBody2D
 
 
 const SPEED = 75
-const AIR_CONTROL = 0.80
+const AIR_CONTROL = 1
 const JUMP_VELOCITY = -175
 
 @export var tilemaplayer: TileMapLayer
@@ -10,8 +10,8 @@ const JUMP_VELOCITY = -175
 @export var block_atlas_coord_blue: Vector2i = Vector2i(2,1)
 @export var dir_facing: int = 1
 @onready var sprite_2d: Sprite2D = $Sprite2D
-var green_charges: int = 3
-var blue_charges: int = 0
+@export var green_charges: int = 3
+@export var blue_charges: int = 0
 var placed_blocks: int = 0
 var highlight_mode: String = "none"
 @onready var highlight: Sprite2D = $Highlight
@@ -19,6 +19,12 @@ var highlight_frame = 3
 var is_pushing: bool = false
 @export var drop_atlas_coord_blue: Vector2i = Vector2i(3,2)
 @export var grate_atlas_coord: Vector2i = Vector2i(1,2)
+@onready var hearts: Sprite2D = $Hearts
+
+
+# Block mode vars
+var block_mode: bool = false
+var block_cursor: Vector2i = Vector2i(1, 0)  # offset from player, starts to the right
 
 func _physics_process(delta: float) -> void:
 	var current_speed = SPEED
@@ -27,28 +33,51 @@ func _physics_process(delta: float) -> void:
 		velocity += get_gravity() * delta
 		current_speed = SPEED * AIR_CONTROL
 
-	# Handle jump.
+		# Toggle block mode with G
+	if Input.is_action_just_pressed("block_mode"):
+		block_mode = !block_mode
+		block_cursor = Vector2i(1, 0)
+		return  # ← stops processing this frame immediately after toggling
+
+	if block_mode:
+		_handle_block_mode()
+	else:
+		_handle_normal_mode(delta, current_speed)
+		
+	update_highlight()
+	update_color()
+	
+	if hearts.visible:
+		hearts.position = global_position
+		
+	move_and_slide()
+	
+	if dir_facing != 0 and is_on_wall() and is_on_floor():
+		try_push_block()
+	# Check if touching other player.
+	check_player_collision()
+	
+
+func _handle_normal_mode(delta: float, current_speed: float) -> void:
+	# Jump
 	if Input.is_action_just_pressed("up_move") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
 	var direction := Input.get_axis("left_move", "right_move")
-	
+
 	if direction != 0:
 		dir_facing = sign(direction)
-		
+
 	if dir_facing == -1:
 		sprite_2d.flip_h = true
 	else:
 		sprite_2d.flip_h = false
-		
+
 	if direction:
-		#highlight_mode = "none"
 		velocity.x = direction * current_speed
 	else:
 		velocity.x = move_toward(velocity.x, 0, current_speed)
-		
+
 	if Input.is_action_just_pressed("down_move"):
 		if highlight_mode == "build":
 			place_block()
@@ -59,15 +88,101 @@ func _physics_process(delta: float) -> void:
 			mine_block()
 		else:
 			highlight_mode = "mine"
-		
-	update_highlight()
-	update_color()
-	
-	move_and_slide()
-	
+
 	if direction != 0 and is_on_wall() and is_on_floor():
 		try_push_block()
-	
+		
+func _handle_block_mode() -> void:
+	velocity.x = move_toward(velocity.x, 0, SPEED)
+
+	# Move cursor with WASD
+	if Input.is_action_just_pressed("left_move"):
+		block_cursor.x = max(-1, block_cursor.x - 1)
+	elif Input.is_action_just_pressed("right_move"):
+		block_cursor.x = min(1, block_cursor.x + 1)
+	elif Input.is_action_just_pressed("up_move"):
+		block_cursor.y = max(-1, block_cursor.y - 1)
+	elif Input.is_action_just_pressed("down_move"):
+		block_cursor.y = min(1, block_cursor.y + 1)
+
+	# Don't allow cursor on player's own tile
+	if block_cursor == Vector2i(0, 0):
+		block_cursor = Vector2i(1, 0)
+
+	# F = smart toggle: absorb if block exists, place if empty
+	if Input.is_action_just_pressed("mine_block"):
+		var target = get_cursor_grid_pos()
+		var source = tilemaplayer.get_cell_source_id(target)
+		if source != -1:
+			absorb_block_at_cursor()
+		else:
+			place_block_at_cursor()
+
+func get_player_grid_pos() -> Vector2i:
+	var player_local_pos = tilemaplayer.to_local(global_position)
+	return tilemaplayer.local_to_map(player_local_pos)
+
+func get_cursor_grid_pos() -> Vector2i:
+	return get_player_grid_pos() + block_cursor
+
+func is_cursor_valid() -> bool:
+	var target = get_cursor_grid_pos()
+
+	# Can't place on a wall tile
+	if tilemaplayer.get_cell_source_id(target) != -1:
+		return false
+
+	# Can't place on occupied tile (player group)
+	if is_tile_occupied(target):
+		return false
+
+	return true
+
+func place_block_at_cursor() -> void:
+	if not is_cursor_valid():
+		return
+
+	var target = get_cursor_grid_pos()
+
+	if green_charges > 0:
+		tilemaplayer.set_cell(target, 0, block_atlas_coord_green)
+		green_charges -= 1
+		placed_blocks += 1
+		update_size()
+	elif blue_charges > 0:
+		tilemaplayer.set_cell(target, 0, block_atlas_coord_blue)
+		blue_charges -= 1
+		placed_blocks += 1
+		update_size()
+
+func absorb_block_at_cursor() -> void:
+	var target = get_cursor_grid_pos()
+	var source = tilemaplayer.get_cell_source_id(target)
+	var atlas = tilemaplayer.get_cell_atlas_coords(target)
+
+	if source == 0 and atlas == block_atlas_coord_green and green_charges < 4:
+		tilemaplayer.set_cell(target, -1)
+		green_charges += 1
+		placed_blocks -= 1
+		update_size()
+	elif source == 0 and atlas == block_atlas_coord_blue and blue_charges < 4:
+		tilemaplayer.set_cell(target, -1)
+		blue_charges += 1
+		placed_blocks -= 1
+		update_size()
+
+func check_player_collision() -> void:
+	for i in get_slide_collision_count():
+		var collision = get_slide_collision(i)
+		var collider = collision.get_collider()
+		
+		if collider.is_in_group("player"):
+			hearts.visible = true
+			hearts.position = global_position
+			GameManager.register_player_touch(self)
+		else:
+			GameManager.unregister_player_touch(self)
+			
 func place_block() -> void:
 	var target_grid_pos: Vector2i =get_build_target()
 	
@@ -153,18 +268,34 @@ func get_mine_target() -> Vector2i:
 
 	return player_grid_pos + Vector2i(dir_facing, 0)
 
+
 func update_highlight() -> void:
+	if block_mode:
+		# Show cursor at the block mode target position
+		highlight.visible = true
+		var target = get_cursor_grid_pos()
+		var local_pos = tilemaplayer.map_to_local(target)
+		highlight.global_position = tilemaplayer.to_global(local_pos)
+
+		# Change frame based on validity
+		if is_cursor_valid():
+			highlight.frame = 7   # green/valid frame
+		else:
+			highlight.frame = 3   # red/invalid frame
+		return
+
+	# Normal highlight mode below
 	if highlight_mode == "none":
 		highlight.visible = false
 		return
-	
+
 	highlight.visible = true
 	var target_grid_pos: Vector2i
-	
+
 	if highlight_mode == "build":
 		target_grid_pos = get_build_target()
 		var source = tilemaplayer.get_cell_source_id(target_grid_pos)
-		
+
 		if source == -1 and placed_blocks < 3 and not is_tile_occupied(target_grid_pos):
 			highlight.visible = true
 			highlight_frame = 7
@@ -182,15 +313,16 @@ func update_highlight() -> void:
 			highlight.frame = highlight_frame
 		else:
 			highlight.visible = false
-	
+
 	var local_pos = tilemaplayer.map_to_local(target_grid_pos)
 	highlight.global_position = tilemaplayer.to_global(local_pos)
-	
 func update_color() -> void:
 	var blue_intensity = 0.3 * blue_charges
 	blue_intensity = clamp(blue_intensity, 0.0, 1.0)
 	sprite_2d.modulate = Color.WHITE.lerp(Color.CYAN, blue_intensity)
 	
+
+
 func try_push_block() -> void:
 	var player_local_pos = tilemaplayer.to_local(global_position)
 	var player_grid_pos = tilemaplayer.local_to_map(player_local_pos)
@@ -212,6 +344,15 @@ func try_push_block() -> void:
 			
 		if slide_dest != block_pos:
 			slide_blue_block(block_pos, slide_dest)
+	var space_state = get_world_2d().direct_space_state
+	var query = PhysicsRayQueryParameters2D.create(
+		global_position,
+		global_position + Vector2(dir_facing * 20, 0),
+		2  # mask layer
+	)
+	var result = space_state.intersect_ray(query)
+	if result and result.collider is RigidBody2D:
+		result.collider.push(dir_facing)
 
 func slide_blue_block(start_grid: Vector2i, end_grid: Vector2i) -> void:
 	is_pushing = true
