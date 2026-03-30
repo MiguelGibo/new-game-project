@@ -2,7 +2,7 @@ extends Node
 
 const SAVE_PATH: String = "user://savegame.dat"
 var current_level: int = 1
-var total_levels: int = 3
+var total_levels: int = 5
 var is_transitioning: bool = false
 
 # Track which players are touching

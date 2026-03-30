@@ -91,9 +91,9 @@ text = "Gooey can aim his blocks by pressing [G] to toggle on/off block mode.
 autowrap_mode = 2
 
 [node name="Label3" type="Label" parent="." unique_id=1553168065]
-offset_left = 267.0
+offset_left = 260.0
 offset_top = 148.0
-offset_right = 529.0
+offset_right = 522.0
 offset_bottom = 214.0
 theme_override_colors/font_color = Color(0.96677226, 0.9676662, 0.97848564, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.61960787)
