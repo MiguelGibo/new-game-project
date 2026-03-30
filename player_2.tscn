@@ -10,7 +10,9 @@ radius = 6.0
 script = ExtResource("1_ufh5k")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681202857]
+light_mask = 3
 shape = SubResource("CircleShape2D_onrkg")
+one_way_collision = true
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1988429914]
 position = Vector2(-1, -2)
