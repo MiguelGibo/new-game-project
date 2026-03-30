@@ -58,7 +58,6 @@ collision_layer = 3
 tilemaplayer = NodePath("../TileMapLayer")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1911095489]
-visible = false
 script = ExtResource("5_b4j7a")
 
 [node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=1088245871]
@@ -86,7 +85,7 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.39607844)
 theme_override_fonts/font = ExtResource("6_wo48x")
 theme_override_font_sizes/font_size = 11
 text = "Slimy's blocks are special, they are like rain, they can go through grates
-(Press ↓ to put down a block)"
+(Press [Arrow Key Down] to put down a block)"
 autowrap_mode = 2
 
 [node name="Label2" type="Label" parent="." unique_id=386606544]
@@ -102,9 +101,9 @@ text = "You can absorb blocks by pressing [F],
 gaining Slimy's abilities."
 
 [node name="Label3" type="Label" parent="." unique_id=310155883]
-offset_left = 267.0
+offset_left = 260.0
 offset_top = 148.0
-offset_right = 529.0
+offset_right = 522.0
 offset_bottom = 214.0
 theme_override_colors/font_color = Color(0.96677226, 0.9676662, 0.97848564, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.61960787)

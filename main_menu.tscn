@@ -73,7 +73,8 @@ grow_vertical = 2
 [node name="Label" type="Label" parent="Title" unique_id=717921962]
 layout_mode = 2
 size_flags_vertical = 6
-text = "loveslime"
+text = "Gooey & Slimy:
+LoveSlime"
 horizontal_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Title" unique_id=1008637880]

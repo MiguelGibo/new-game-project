@@ -1,8 +1,9 @@
 extends Node
+var music_player: AudioStreamPlayer
 
 const SAVE_PATH: String = "user://savegame.dat"
 var current_level: int = 1
-var total_levels: int = 5
+var total_levels: int = 6
 var is_transitioning: bool = false
 
 # Track which players are touching
@@ -11,6 +12,11 @@ var players_touching: Array = []
 func register_player_touch(player) -> void:
 	if player in players_touching:
 		return
+	
+	if current_level >= total_levels:
+		print("Final level reached. No more transitions.")
+		return
+	
 	players_touching.append(player)
 	print("Registered: ", player.name, " | Total: ", players_touching.size())
 	if players_touching.size() >= 2:
@@ -49,14 +55,23 @@ func get_next_level_path() -> String:
 	return "res://scenes/level_%d.tscn" % current_level
 
 func advance_level() -> void:
-	current_level += 1
+	if current_level < total_levels:
+		current_level += 1
 
-func _ready() -> void:
+func _ready():
+	music_player = AudioStreamPlayer.new()
+	add_child(music_player)
+
+	var stream = preload("res://music/slime-chiptune.mp3")
+	stream.loop = true
+	music_player.stream = stream
+	
+	music_player.play() 
+	
 	load_game()
+
 	
 func save_game() -> void:
-	if current_level > total_levels:
-		current_level = 1
 		
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	

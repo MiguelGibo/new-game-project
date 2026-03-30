@@ -55,7 +55,6 @@ collision_layer = 3
 tilemaplayer = NodePath("../TileMapLayer")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1911095489]
-visible = false
 script = ExtResource("5_4nkto")
 
 [node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=1088245871]
