@@ -35,7 +35,7 @@ texture = ExtResource("1_kx6l7")
 physics_layer_0/collision_layer = 1
 sources/0 = SubResource("TileSetAtlasSource_hn12h")
 
-[node name="Level 1" type="Node2D" unique_id=1685831713 groups=["player"]]
+[node name="Level 1" type="Node2D" unique_id=1685831713]
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=363549976]
 position = Vector2(1, 0)
@@ -44,16 +44,17 @@ tile_set = SubResource("TileSet_ihfcg")
 script = ExtResource("2_n46q3")
 
 [node name="Player1" parent="." unique_id=2024297438 node_paths=PackedStringArray("tilemaplayer") instance=ExtResource("3_btoec")]
-position = Vector2(73, 126)
+position = Vector2(102, 136)
 collision_layer = 3
 tilemaplayer = NodePath("../TileMapLayer")
 
 [node name="Player2" parent="." unique_id=52428779 node_paths=PackedStringArray("tilemaplayer") instance=ExtResource("4_gwceb")]
-position = Vector2(227, 126)
+position = Vector2(220, 135)
 collision_layer = 3
 tilemaplayer = NodePath("../TileMapLayer")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1911095489]
+visible = false
 script = ExtResource("5_4nkto")
 
 [node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=1088245871]
