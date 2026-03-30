@@ -19,6 +19,7 @@ var highlight_frame = 3
 var is_pushing: bool = false
 @export var drop_atlas_coord_blue: Vector2i = Vector2i(3,2)
 @export var grate_atlas_coord: Vector2i = Vector2i(1,2)
+@onready var hearts: Sprite2D = $Hearts
 
 func _physics_process(delta: float) -> void:
 	var current_speed = SPEED
@@ -63,6 +64,9 @@ func _physics_process(delta: float) -> void:
 	update_highlight()
 	update_color()
 	
+	if hearts.visible:
+		hearts.position = global_position
+	
 	move_and_slide()
 	
 	if direction != 0 and is_on_wall() and is_on_floor():
@@ -72,13 +76,29 @@ func _physics_process(delta: float) -> void:
 	check_player_collision()
 
 func check_player_collision() -> void:
-	for i in get_slide_collision_count():
-		var collision = get_slide_collision(i)
-		var collider = collision.get_collider()
-		if collider.is_in_group("player"):
-			GameManager.register_player_touch(self)
-		else:
-			GameManager.unregister_player_touch(self)
+	var touching_player = false
+	
+	for player in get_tree().get_nodes_in_group("player"):
+		if player == self:
+			continue
+		
+		print("Checking against: ", player.name)
+		print("My pos: ", global_position, " | Other pos: ", player.global_position)
+		
+		var distance = global_position.distance_to(player.global_position)
+		print("Distance: ", distance)
+		
+		if distance < 20:
+			touching_player = true
+			break
+	
+	if touching_player:
+		print("Registered: ", name)
+		hearts.visible = true
+		GameManager.register_player_touch(self)
+	else:
+		hearts.visible = false
+		GameManager.unregister_player_touch(self)
 
 func place_block() -> void:
 	var target_grid_pos: Vector2i =get_build_target()

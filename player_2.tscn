@@ -9,9 +9,10 @@ radius = 6.0
 [node name="Player" type="CharacterBody2D" unique_id=2024297438 groups=["player"]]
 script = ExtResource("1_ufh5k")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681202857 groups=["player"]]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681202857]
 light_mask = 3
 shape = SubResource("CircleShape2D_onrkg")
+one_way_collision = true
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1988429914]
 position = Vector2(-1, -2)
@@ -27,3 +28,12 @@ texture = ExtResource("3_ryqyf")
 hframes = 4
 vframes = 4
 frame = 3
+
+[node name="Hearts" type="Sprite2D" parent="." unique_id=704645740]
+visible = false
+top_level = true
+texture = ExtResource("3_ryqyf")
+offset = Vector2(0, -16)
+hframes = 4
+vframes = 4
+frame = 13

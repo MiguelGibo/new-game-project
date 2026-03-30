@@ -52,12 +52,11 @@ collision_layer = 3
 tilemaplayer = NodePath("../TileMapLayer")
 
 [node name="Player2" parent="." unique_id=52428779 node_paths=PackedStringArray("tilemaplayer") instance=ExtResource("4_7j8ne")]
-position = Vector2(34, 54)
+position = Vector2(35, 73)
 collision_layer = 3
 tilemaplayer = NodePath("../TileMapLayer")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1911095489]
-visible = false
 script = ExtResource("5_b4j7a")
 
 [node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=1088245871]

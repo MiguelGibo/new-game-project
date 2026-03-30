@@ -12,7 +12,7 @@ func register_player_touch(player) -> void:
 		return
 	players_touching.append(player)
 	print("Registered: ", player.name, " | Total: ", players_touching.size())
-	if players_touching.size() >= 1:
+	if players_touching.size() >= 2:
 		trigger_transition()
 
 func unregister_player_touch(player) -> void:

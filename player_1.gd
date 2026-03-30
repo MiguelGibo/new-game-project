@@ -21,7 +21,6 @@ var is_pushing: bool = false
 @export var grate_atlas_coord: Vector2i = Vector2i(1,2)
 @onready var hearts: Sprite2D = $Hearts
 
-
 # Block mode vars
 var block_mode: bool = false
 var block_cursor: Vector2i = Vector2i(1, 0)  # offset from player, starts to the right
@@ -172,16 +171,29 @@ func absorb_block_at_cursor() -> void:
 		update_size()
 
 func check_player_collision() -> void:
-	for i in get_slide_collision_count():
-		var collision = get_slide_collision(i)
-		var collider = collision.get_collider()
+	var touching_player = false
+	
+	for player in get_tree().get_nodes_in_group("player"):
+		if player == self:
+			continue
 		
-		if collider.is_in_group("player"):
-			hearts.visible = true
-			hearts.position = global_position
-			GameManager.register_player_touch(self)
-		else:
-			GameManager.unregister_player_touch(self)
+		print("Checking against: ", player.name)
+		print("My pos: ", global_position, " | Other pos: ", player.global_position)
+		
+		var distance = global_position.distance_to(player.global_position)
+		print("Distance: ", distance)
+		
+		if distance < 16:
+			touching_player = true
+			break
+	
+	if touching_player:
+		print("Registered: ", name)
+		hearts.visible = true
+		GameManager.register_player_touch(self)
+	else:
+		hearts.visible = false
+		GameManager.unregister_player_touch(self)
 			
 func place_block() -> void:
 	var target_grid_pos: Vector2i =get_build_target()
