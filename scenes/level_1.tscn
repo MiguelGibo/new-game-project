@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://cqxfmo3hixad1" path="res://tile_map_layer.gd" id="2_n46q3"]
 [ext_resource type="PackedScene" uid="uid://ckudr8chj1kgo" path="res://player_1.tscn" id="3_btoec"]
 [ext_resource type="PackedScene" uid="uid://bo4ecolaorstk" path="res://player_2.tscn" id="4_gwceb"]
-[ext_resource type="Script" uid="uid://dexoia7a51tf6" path="res://scripts/level_transition.gd" id="5_4nkto"]
+[ext_resource type="Script" uid="uid://dugo587dlo4tb" path="res://scripts/level_transition.gd" id="5_4nkto"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hn12h"]
 texture = ExtResource("1_kx6l7")
@@ -63,15 +63,3 @@ offset_top = -16.0
 offset_right = 338.0
 offset_bottom = 208.0
 color = Color(1, 1, 1, 0)
-
-[node name="Label" type="Label" parent="." unique_id=847682524]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = 282.0
-offset_right = 317.0
-offset_bottom = 14.0
-grow_horizontal = 0
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 10
-text = "Level 1"
