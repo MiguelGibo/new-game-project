@@ -16,7 +16,8 @@ func _process(delta: float) -> void:
 
 
 func _on_start_button_pressed() -> void:
-	get_tree().change_scene_to_packed(level_1)
+	GameManager.current_level = 1
+	GameManager.trigger_transition()
 
 
 func _on_quit_button_pressed() -> void:
@@ -31,3 +32,32 @@ func _on_level_select_button_pressed() -> void:
 func _on_back_button_pressed() -> void:
 	title.visible = true
 	level_select.visible = false
+
+
+func _on_continue_button_pressed() -> void:
+	GameManager.trigger_transition()
+
+
+func _on_level_1_pressed() -> void:
+	GameManager.current_level = 1
+	GameManager.trigger_transition()
+
+
+func _on_level_2_pressed() -> void:
+	GameManager.current_level = 2
+	GameManager.trigger_transition()
+
+
+func _on_level_3_pressed() -> void:
+	GameManager.current_level = 3
+	GameManager.trigger_transition()
+
+
+func _on_level_4_pressed() -> void:
+	GameManager.current_level = 4
+	GameManager.trigger_transition()
+
+
+func _on_level_5_pressed() -> void:
+	GameManager.current_level = 5
+	GameManager.trigger_transition()

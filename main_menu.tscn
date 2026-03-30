@@ -85,15 +85,21 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Start"
 
-[node name="QuitButton" type="Button" parent="Title/HBoxContainer" unique_id=166760854]
+[node name="ContinueButton" type="Button" parent="Title/HBoxContainer" unique_id=1720075390]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Quit"
+theme_override_font_sizes/font_size = 10
+text = "Continue"
 
 [node name="LevelSelectButton" type="Button" parent="Title" unique_id=1469163420]
 layout_mode = 2
 theme_override_font_sizes/font_size = 8
 text = "Level Select"
+
+[node name="QuitButton" type="Button" parent="Title" unique_id=166760854]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Quit"
 
 [node name="LevelSelect" type="VBoxContainer" parent="." unique_id=1217065582]
 visible = false
@@ -119,6 +125,37 @@ size_flags_vertical = 3
 
 [node name="VBoxContainer" type="VBoxContainer" parent="LevelSelect/ScrollContainer" unique_id=1735354662]
 layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Level1" type="Button" parent="LevelSelect/ScrollContainer/VBoxContainer" unique_id=1749908913]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 7
+text = "Level 1"
+
+[node name="Level2" type="Button" parent="LevelSelect/ScrollContainer/VBoxContainer" unique_id=1207293117]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 7
+text = "Level 2"
+
+[node name="Level3" type="Button" parent="LevelSelect/ScrollContainer/VBoxContainer" unique_id=1719114049]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 7
+text = "Level 3"
+
+[node name="Level4" type="Button" parent="LevelSelect/ScrollContainer/VBoxContainer" unique_id=1409751769]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 7
+text = "Level 4"
+
+[node name="Level5" type="Button" parent="LevelSelect/ScrollContainer/VBoxContainer" unique_id=1298700621]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 7
+text = "Level 5"
 
 [node name="BackButton" type="Button" parent="LevelSelect" unique_id=2099402221]
 layout_mode = 2
@@ -127,6 +164,12 @@ theme_override_font_sizes/font_size = 2
 text = "Back"
 
 [connection signal="pressed" from="Title/HBoxContainer/StartButton" to="." method="_on_start_button_pressed"]
-[connection signal="pressed" from="Title/HBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="Title/HBoxContainer/ContinueButton" to="." method="_on_continue_button_pressed"]
 [connection signal="pressed" from="Title/LevelSelectButton" to="." method="_on_level_select_button_pressed"]
+[connection signal="pressed" from="Title/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="LevelSelect/ScrollContainer/VBoxContainer/Level1" to="." method="_on_level_1_pressed"]
+[connection signal="pressed" from="LevelSelect/ScrollContainer/VBoxContainer/Level2" to="." method="_on_level_2_pressed"]
+[connection signal="pressed" from="LevelSelect/ScrollContainer/VBoxContainer/Level3" to="." method="_on_level_3_pressed"]
+[connection signal="pressed" from="LevelSelect/ScrollContainer/VBoxContainer/Level4" to="." method="_on_level_4_pressed"]
+[connection signal="pressed" from="LevelSelect/ScrollContainer/VBoxContainer/Level5" to="." method="_on_level_5_pressed"]
 [connection signal="pressed" from="LevelSelect/BackButton" to="." method="_on_back_button_pressed"]
